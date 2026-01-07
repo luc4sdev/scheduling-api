@@ -12,7 +12,13 @@ import { SchedulesController } from '@/controllers/schedule';
 
 const app = express();
 
-app.use(cors());
+app.use(cors({
+    origin: ["http://localhost:3000"],
+    methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
+    preflightContinue: false,
+    credentials: true,
+    optionsSuccessStatus: 204
+}));
 app.use(express.json());
 
 app.post('/api/sessions/password', AuthController.authenticate);
@@ -27,15 +33,15 @@ app.delete('/api/users/:id', UsersController.delete);
 
 app.get('/api/logs', LogsController.getLogs);
 
-app.get('/rooms', authMiddleware, RoomsController.getAll);
-app.post('/rooms', authMiddleware, RoomsController.create);
-app.put('/rooms/:id', authMiddleware, RoomsController.update);
-app.delete('/rooms/:id', authMiddleware, RoomsController.delete);
+app.get('/api/rooms', RoomsController.getAll);
+app.post('/api/rooms', RoomsController.create);
+app.put('/api/rooms/:id', RoomsController.update);
+app.delete('/api/rooms/:id', RoomsController.delete);
 
-app.get('/schedules', authMiddleware, SchedulesController.getAll);
-app.get('/schedules/availability', authMiddleware, SchedulesController.getAvailability);
-app.post('/schedules', authMiddleware, SchedulesController.create);
-app.patch('/schedules/:id/status', authMiddleware, SchedulesController.updateStatus);
+app.get('/api/schedules/availability', SchedulesController.getAvailability);
+app.get('/api/schedules', SchedulesController.getAll);
+app.post('/api/schedules', SchedulesController.create);
+app.patch('/api/schedules/:id/status', SchedulesController.updateStatus);
 
 const startServer = async () => {
     try {

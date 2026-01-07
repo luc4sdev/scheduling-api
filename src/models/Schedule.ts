@@ -25,12 +25,14 @@ export interface ScheduleAttributes {
     id: string;
     userId: string;
     roomId: string;
-    date: Date;
+    date: string;
+    startTime: string;
+    endTime: string;
     status: ScheduleStatus;
     notes?: string;
 }
 
-export interface ScheduleCreationAttributes extends Optional<ScheduleAttributes, 'id' | 'status' | 'notes'> { }
+export interface ScheduleCreationAttributes extends Optional<ScheduleAttributes, 'id' | 'status' | 'notes' | 'endTime'> { }
 
 @Table({
     tableName: 'schedules',
@@ -64,10 +66,22 @@ export class Schedule extends Model<ScheduleAttributes, ScheduleCreationAttribut
     declare room: Room;
 
     @Column({
-        type: DataType.DATE,
+        type: DataType.DATEONLY,
         allowNull: false,
     })
-    declare date: Date;
+    declare date: string;
+
+    @Column({
+        type: DataType.STRING(5),
+        allowNull: false,
+    })
+    declare startTime: string;
+
+    @Column({
+        type: DataType.STRING(5),
+        allowNull: false,
+    })
+    declare endTime: string;
 
     @Default(ScheduleStatus.PENDING)
     @Column({

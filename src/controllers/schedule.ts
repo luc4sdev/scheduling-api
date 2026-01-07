@@ -10,15 +10,19 @@ export class SchedulesController {
 
     public static async getAvailability(req: Request, res: Response) {
         const schema = z.object({
-            roomId: z.uuid(),
-            date: z.iso.datetime({ offset: true }).or(z.string().regex(/^\d{4}-\d{2}-\d{2}$/))
+            date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Data inválida (YYYY-MM-DD)"),
+            roomId: z.uuid("ID da sala inválido")
         });
 
         try {
-            const { roomId, date } = schema.parse(req.query);
-            const slots = await SchedulesController.service.getAvailableSlots(roomId, date);
-            return res.json(slots);
-        } catch (error) {
+            const { date, roomId } = schema.parse(req.query);
+            const availableSlots = await SchedulesController.service.getAvailability(roomId, date);
+
+            return res.json(availableSlots);
+        } catch (error: any) {
+            if (error.message === 'Sala não encontrada') {
+                return res.status(404).json({ message: error.message });
+            }
             return res.status(400).json({ error });
         }
     }
@@ -26,14 +30,15 @@ export class SchedulesController {
     public static async create(req: Request, res: Response) {
         const schema = z.object({
             roomId: z.uuid(),
-            date: z.iso.datetime()
+            date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Data inválida (YYYY-MM-DD)"),
+            startTime: z.string().regex(/^\d{2}:\d{2}$/, "Horário inválido (HH:mm)")
         });
 
         try {
-            const { roomId, date } = schema.parse(req.body);
+            const { roomId, date, startTime } = schema.parse(req.body);
             const userId = req.userId;
 
-            const schedule = await SchedulesController.service.create({ userId, roomId, date });
+            const schedule = await SchedulesController.service.create({ userId, roomId, date, startTime });
             return res.status(201).json(schedule);
         } catch (error: any) {
             return res.status(400).json({ message: error.message || 'Erro ao agendar' });
@@ -80,12 +85,6 @@ export class SchedulesController {
         });
 
         try {
-            const user = await SchedulesController.usersService.getById(req.userId);
-            const isAdmin = user?.role === 'ADMIN';
-            if (!isAdmin) {
-                return res.status(403).json({ message: 'Acesso negado' });
-            }
-
             const { id } = schemaParams.parse(req.params);
             const { status } = schemaBody.parse(req.body);
 

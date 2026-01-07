@@ -119,7 +119,6 @@ export class UsersService {
         }
 
         const emailChanged = data.email && data.email !== user.email;
-        console.log('Updating user with data:', data);
         await user.update(data);
 
         if (emailChanged) {

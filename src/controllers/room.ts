@@ -12,18 +12,20 @@ export class RoomsController {
     }
 
     public static async create(req: Request, res: Response) {
-        const schema = z.object({
+        const singleRoomSchema = z.object({
             name: z.string(),
             startTime: z.string().regex(/^\d{2}:\d{2}$/, "Formato HH:mm inválido"),
             endTime: z.string().regex(/^\d{2}:\d{2}$/, "Formato HH:mm inválido"),
             slotDuration: z.number().min(15).default(30)
         });
 
+        const schema = z.array(singleRoomSchema);
+
         try {
             const data = schema.parse(req.body);
             const adminId = req.userId;
-            const room = await RoomsController.roomsService.create(data, adminId);
-            return res.status(201).json(room);
+            const rooms = await RoomsController.roomsService.create(data, adminId);
+            return res.status(201).json(rooms);
         } catch (error) {
             return res.status(400).json({ error });
         }

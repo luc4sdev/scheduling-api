@@ -2,13 +2,14 @@ import { Op } from 'sequelize';
 import { Schedule, ScheduleStatus } from '../models/Schedule';
 import { Room } from '../models/Room';
 import { User } from '../models/User';
-import { startOfDay, endOfDay, parseISO, format, addMinutes, setHours, setMinutes } from 'date-fns';
 import { LogsService } from './log';
+import { statusMap } from '@/utils/translate-status';
 
 interface CreateScheduleDTO {
     userId: string;
     roomId: string;
     date: string;
+    startTime: string;
 }
 
 interface ListFilter {
@@ -29,51 +30,60 @@ export class SchedulesService {
         this.logsService = new LogsService();
     }
 
-    public async getAvailableSlots(roomId: string, dateString: string) {
+    private timeToMinutes(time: string): number {
+        const [hours, minutes] = time.split(':').map(Number);
+        return (hours * 60) + minutes;
+    }
+
+    private minutesToTime(minutes: number): string {
+        const h = Math.floor(minutes / 60);
+        const m = minutes % 60;
+        return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`;
+    }
+
+    public async getAvailability(roomId: string, dateString: string) {
         const room = await Room.findByPk(roomId);
         if (!room) throw new Error('Sala não encontrada');
-
-        const [startHour, startMinute] = room.startTime.split(':').map(Number);
-        const [endHour, endMinute] = room.endTime.split(':').map(Number);
-
-        const queryDate = parseISO(dateString);
 
         const existingSchedules = await Schedule.findAll({
             where: {
                 roomId,
-                status: { [Op.ne]: ScheduleStatus.CANCELLED },
-                date: {
-                    [Op.between]: [startOfDay(queryDate), endOfDay(queryDate)]
-                }
-            }
+                date: dateString,
+                status: { [Op.ne]: ScheduleStatus.CANCELLED }
+            },
+            attributes: ['startTime']
         });
 
-        const occupiedTimes = new Set(existingSchedules.map(s => format(s.date, 'HH:mm')));
+        const occupiedTimes = new Set(existingSchedules.map(s => s.startTime));
 
         const slots: string[] = [];
 
-        let currentTime = setMinutes(setHours(queryDate, startHour), startMinute);
+        let currentMinutes = this.timeToMinutes(room.startTime);
+        const endMinutes = this.timeToMinutes(room.endTime);
+        const duration = room.slotDuration;
 
-        const endTime = setMinutes(setHours(queryDate, endHour), endMinute);
-
-        while (currentTime < endTime) {
-            const timeString = format(currentTime, 'HH:mm');
+        while (currentMinutes < endMinutes) {
+            const timeString = this.minutesToTime(currentMinutes);
 
             if (!occupiedTimes.has(timeString)) {
                 slots.push(timeString);
             }
 
-            currentTime = addMinutes(currentTime, room.slotDuration);
+            currentMinutes += duration;
         }
 
         return slots;
     }
 
-    public async create({ userId, roomId, date }: CreateScheduleDTO) {
+    public async create({ userId, roomId, date, startTime }: CreateScheduleDTO) {
+        const room = await Room.findByPk(roomId);
+        if (!room) throw new Error('Sala não encontrada');
+
         const existing = await Schedule.findOne({
             where: {
                 roomId,
-                date: parseISO(date),
+                date,
+                startTime,
                 status: { [Op.ne]: ScheduleStatus.CANCELLED }
             }
         });
@@ -82,10 +92,16 @@ export class SchedulesService {
             throw new Error('Horário já reservado por outro usuário.');
         }
 
+        const startMinutes = this.timeToMinutes(startTime);
+        const endMinutes = startMinutes + room.slotDuration;
+        const endTime = this.minutesToTime(endMinutes);
+
         const schedule = await Schedule.create({
             userId,
             roomId,
-            date: parseISO(date),
+            date,
+            startTime,
+            endTime,
             status: ScheduleStatus.PENDING
         });
 
@@ -93,8 +109,10 @@ export class SchedulesService {
             userId,
             'Criação de agendamento',
             'Agendamento',
-            { scheduleId: schedule.id, date }
+            { scheduleId: schedule.id, date, startTime }
         );
+
+        return schedule;
     }
 
     public async getAll({ userId, isAdmin, page, limit, query, roomId, date }: ListFilter) {
@@ -109,10 +127,7 @@ export class SchedulesService {
         if (roomId) where.roomId = roomId;
 
         if (date) {
-            const parsedDate = parseISO(date);
-            where.date = {
-                [Op.between]: [startOfDay(parsedDate), endOfDay(parsedDate)]
-            };
+            where.date = date;
         }
 
         if (query) {
@@ -127,13 +142,16 @@ export class SchedulesService {
             where,
             limit,
             offset,
-            order: [['date', 'DESC']],
+            order: [
+                ['date', 'DESC'],
+                ['startTime', 'DESC']
+            ],
             include: [
                 {
                     model: User,
                     attributes: ['id', 'name', 'lastName', 'email', 'role'],
                     where: userWhere,
-                    required: true
+                    required: !!query
                 },
                 {
                     model: Room,
@@ -154,13 +172,12 @@ export class SchedulesService {
     public async updateStatus(id: string, status: ScheduleStatus) {
         const schedule = await Schedule.findByPk(id);
         if (!schedule) throw new Error('Agendamento não encontrado');
-
         await schedule.update({ status });
 
-        if (status === ScheduleStatus.CANCELLED) {
+        if (status === ScheduleStatus.CANCELLED || status === ScheduleStatus.COMPLETED) {
             await this.logsService.createLog(
                 schedule.userId,
-                'Cancelamento de agendamento',
+                `Alteração de status para ${statusMap[status]}`,
                 'Agendamento',
                 { scheduleId: schedule.id }
             );

@@ -15,16 +15,18 @@ export class RoomsService {
         });
     }
 
-    public async create(data: Pick<RoomAttributes, 'name' | 'startTime' | 'endTime' | 'slotDuration'>, adminId: string) {
-        const room = await Room.create(data);
+    public async create(data: Pick<RoomAttributes, 'name' | 'startTime' | 'endTime' | 'slotDuration'>[], adminId: string) {
+        const rooms = await Room.bulkCreate(data);
 
-        await this.logsService.createLog(
-            adminId,
-            'Criação de sala',
-            'Agendamento',
-            { roomName: room.name, roomId: room.id }
-        );
-        return room;
+        await Promise.all(rooms.map(room => {
+            return this.logsService.createLog(
+                adminId,
+                'Criação de sala',
+                'Agendamento',
+                { roomName: room.name, roomId: room.id }
+            );
+        }));
+        return rooms;
     }
 
     public async update(id: string, data: Partial<RoomAttributes>, adminId: string) {
