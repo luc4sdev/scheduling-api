@@ -1,4 +1,4 @@
-import { Op } from 'sequelize';
+import { Op, WhereOptions } from 'sequelize';
 import { Schedule, ScheduleStatus } from '../models/Schedule';
 import { Room } from '../models/Room';
 import { User } from '../models/User';
@@ -20,6 +20,7 @@ interface ListFilter {
     query?: string;
     roomId?: string;
     date?: string;
+    order?: 'ASC' | 'DESC';
 }
 
 export class SchedulesService {
@@ -115,36 +116,33 @@ export class SchedulesService {
         return schedule;
     }
 
-    public async getAll({ userId, isAdmin, page, limit, query, roomId, date }: ListFilter) {
+    public async getAll({ userId, isAdmin, page, limit, query, roomId, date, order = 'DESC' }: ListFilter) {
         const offset = (page - 1) * limit;
-        const where: any = {};
-        const userWhere: any = {};
+        const where: WhereOptions<Schedule> = {
+            ...(!isAdmin && userId ? { userId } : {}),
 
-        if (!isAdmin && userId) {
-            where.userId = userId;
-        }
+            ...(roomId ? { roomId } : {}),
 
-        if (roomId) where.roomId = roomId;
+            ...(date ? { date } : {})
+        };
 
-        if (date) {
-            where.date = date;
-        }
-
-        if (query) {
-            userWhere[Op.or] = [
-                { name: { [Op.like]: `%${query}%` } },
-                { lastName: { [Op.like]: `%${query}%` } },
-                { email: { [Op.like]: `%${query}%` } }
-            ];
-        }
+        const userWhere: WhereOptions<User> = {
+            ...(query ? {
+                [Op.or]: [
+                    { name: { [Op.like]: `%${query}%` } },
+                    { lastName: { [Op.like]: `%${query}%` } },
+                    { email: { [Op.like]: `%${query}%` } }
+                ]
+            } : {})
+        };
 
         const { count, rows } = await Schedule.findAndCountAll({
             where,
             limit,
             offset,
             order: [
-                ['date', 'DESC'],
-                ['startTime', 'DESC']
+                ['date', order],
+                ['startTime', order]
             ],
             include: [
                 {

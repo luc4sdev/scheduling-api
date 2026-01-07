@@ -1,7 +1,7 @@
 import { endOfDay, parseISO, startOfDay } from 'date-fns';
 import { Log } from '../models/Log';
 import { User } from '../models/User';
-import { Op } from 'sequelize';
+import { Op, WhereOptions } from 'sequelize';
 
 interface GetLogsParams {
     requestingUserId: string;
@@ -28,18 +28,22 @@ export class LogsService {
         if (!requester) throw new Error('User not found');
 
         const offset = (page - 1) * limit;
-        const where: any = {};
+        const where: WhereOptions<Log> = {
+            ...(requester.role !== 'ADMIN' ? { userId: requestingUserId } : {}),
 
-        if (requester.role !== 'ADMIN') {
-            where.userId = requestingUserId;
-        }
+            ...(query ? {
+                [Op.or]: [
+                    { action: { [Op.like]: `%${query}%` } },
+                    { module: { [Op.like]: `%${query}%` } }
+                ]
+            } : {}),
 
-        if (query) {
-            where[Op.or] = [
-                { action: { [Op.like]: `%${query}%` } },
-                { module: { [Op.like]: `%${query}%` } }
-            ];
-        }
+            ...(date ? {
+                createdAt: {
+                    [Op.between]: [startOfDay(parseISO(date)), endOfDay(parseISO(date))]
+                }
+            } : {})
+        };
 
         if (date) {
             const searchDate = parseISO(date);

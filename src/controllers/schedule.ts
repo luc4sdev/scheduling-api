@@ -18,12 +18,24 @@ export class SchedulesController {
             const { date, roomId } = schema.parse(req.query);
             const availableSlots = await SchedulesController.service.getAvailability(roomId, date);
 
-            return res.json(availableSlots);
-        } catch (error: any) {
-            if (error.message === 'Sala não encontrada') {
-                return res.status(404).json({ message: error.message });
+            res.json(availableSlots);
+        } catch (error) {
+            if (error instanceof z.ZodError) {
+                return res.status(400).json({
+                    message: 'Validation error',
+                    errors: error
+                });
             }
-            return res.status(400).json({ error });
+
+            if (error instanceof Error) {
+                if (error.message === 'Sala não encontrada') {
+                    return res.status(404).json({ message: error.message });
+                }
+
+                return res.status(400).json({ message: error.message });
+            }
+
+            return res.status(500).json({ message: 'Erro desconhecido' });
         }
     }
 
@@ -39,9 +51,20 @@ export class SchedulesController {
             const userId = req.userId;
 
             const schedule = await SchedulesController.service.create({ userId, roomId, date, startTime });
-            return res.status(201).json(schedule);
-        } catch (error: any) {
-            return res.status(400).json({ message: error.message || 'Erro ao agendar' });
+            res.status(201).json(schedule);
+        } catch (error) {
+            if (error instanceof z.ZodError) {
+                return res.status(400).json({
+                    message: 'Validation error',
+                    errors: error
+                });
+            }
+
+            if (error instanceof Error) {
+                return res.status(400).json({ message: error.message || 'Erro ao agendar' });
+            }
+
+            return res.status(500).json({ message: 'Erro desconhecido' });
         }
     }
 
@@ -50,12 +73,13 @@ export class SchedulesController {
             page: z.string().transform(Number).optional(),
             limit: z.string().transform(Number).optional(),
             query: z.string().optional(),
-            roomId: z.string().optional(),
             date: z.string().optional(),
+            order: z.enum(['ASC', 'DESC']).optional().default('DESC'),
+            roomId: z.string().optional(),
         });
 
         try {
-            const { page = 1, limit = 10, query, roomId, date } = schema.parse(req.query);
+            const { page = 1, limit = 10, query, roomId, date, order } = schema.parse(req.query);
 
             const user = await SchedulesController.usersService.getById(req.userId);
             const isAdmin = user?.role === 'ADMIN';
@@ -67,12 +91,17 @@ export class SchedulesController {
                 limit,
                 query,
                 roomId,
-                date
+                date,
+                order
             });
 
-            return res.json(schedules);
+            res.json(schedules);
         } catch (error) {
-            return res.status(500).json({ error });
+            if (error instanceof z.ZodError) {
+                res.status(400).json({ message: 'Validation error', errors: error });
+                return;
+            }
+            res.status(500).json({ error });
         }
     }
 
@@ -89,9 +118,13 @@ export class SchedulesController {
             const { status } = schemaBody.parse(req.body);
 
             const updated = await SchedulesController.service.updateStatus(id, status);
-            return res.json(updated);
+            res.json(updated);
         } catch (error) {
-            return res.status(400).json({ error });
+            if (error instanceof z.ZodError) {
+                res.status(400).json({ message: 'Validation error', errors: error });
+                return;
+            }
+            res.status(400).json({ error });
         }
     }
 }

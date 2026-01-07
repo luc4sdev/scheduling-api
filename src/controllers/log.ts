@@ -33,16 +33,13 @@ export class LogsController {
                 order
             });
 
-            return res.json(result);
-
+            res.json(result);
         } catch (error) {
-            console.error(error);
-
             if (error instanceof z.ZodError) {
-                return res.status(400).json({ message: 'Validation error', errors: error });
+                res.status(400).json({ message: 'Validation error', errors: error });
+                return;
             }
-
-            return res.status(500).json({ message: 'Internal server error' });
+            res.status(500).json({ message: 'Internal server error' });
         }
     }
 }

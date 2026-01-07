@@ -25,15 +25,17 @@ export class AuthController {
 
         } catch (error) {
             if (error instanceof z.ZodError) {
-                return res.status(400).json({
+                res.status(400).json({
                     message: 'Validation error',
                     errors: error
                 });
+                return;
             }
             if (error instanceof Error && error.message === 'Invalid credentials') {
-                return res.status(400).json({ message: 'Invalid credentials!' });
+                res.status(400).json({ message: 'Invalid credentials!' });
+                return;
             }
-            return res.status(500).json({ message: 'Internal server error', error });
+            res.status(500).json({ message: 'Internal server error', error });
         }
     }
 }

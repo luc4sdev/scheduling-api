@@ -1,4 +1,4 @@
-import { Op } from 'sequelize';
+import { Op, WhereOptions } from 'sequelize';
 import { User } from '../models/User';
 import bcrypt from 'bcryptjs';
 import { LogsService } from './log';
@@ -39,16 +39,22 @@ export class UsersService {
 
     public async getAll({ page = 1, limit = 10, query, date, order = 'DESC' }: GetAllParams) {
 
-        const where: any = {
-            role: { [Op.eq]: 'USER' }
-        };
+        const where: WhereOptions<User> = {
+            role: 'USER',
 
-        if (query) {
-            where[Op.or] = [
-                { name: { [Op.like]: `%${query}%` } },
-                { email: { [Op.like]: `%${query}%` } },
-            ];
-        }
+            ...(query ? {
+                [Op.or]: [
+                    { name: { [Op.like]: `%${query}%` } },
+                    { email: { [Op.like]: `%${query}%` } }
+                ]
+            } : {}),
+
+            ...(date ? {
+                createdAt: {
+                    [Op.between]: [startOfDay(parseISO(date)), endOfDay(parseISO(date))]
+                }
+            } : {})
+        };
 
         if (date) {
             const searchDate = parseISO(date);

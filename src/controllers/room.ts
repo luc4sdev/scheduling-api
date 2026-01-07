@@ -8,7 +8,7 @@ export class RoomsController {
 
     public static async getAll(_req: Request, res: Response) {
         const rooms = await RoomsController.roomsService.getAll();
-        return res.json(rooms);
+        res.json(rooms);
     }
 
     public static async create(req: Request, res: Response) {
@@ -25,9 +25,13 @@ export class RoomsController {
             const data = schema.parse(req.body);
             const adminId = req.userId;
             const rooms = await RoomsController.roomsService.create(data, adminId);
-            return res.status(201).json(rooms);
+            res.status(201).json(rooms);
         } catch (error) {
-            return res.status(400).json({ error });
+            if (error instanceof z.ZodError) {
+                res.status(400).json({ message: 'Validation error', errors: error });
+                return;
+            }
+            res.status(400).json({ error });
         }
     }
 
@@ -51,12 +55,24 @@ export class RoomsController {
 
             const updatedRoom = await RoomsController.roomsService.update(id, data, adminId);
 
-            return res.json(updatedRoom);
-        } catch (error: any) {
-            if (error.message === 'Sala não encontrada') {
-                return res.status(404).json({ message: error.message });
+            res.json(updatedRoom);
+        } catch (error) {
+            if (error instanceof z.ZodError) {
+                return res.status(400).json({
+                    message: 'Validation error',
+                    errors: error
+                });
             }
-            return res.status(400).json({ error });
+
+            if (error instanceof Error) {
+                if (error.message === 'Sala não encontrada') {
+                    return res.status(404).json({ message: error.message });
+                }
+
+                return res.status(400).json({ message: error.message });
+            }
+
+            return res.status(500).json({ message: 'Erro desconhecido' });
         }
     }
 
@@ -71,12 +87,24 @@ export class RoomsController {
 
             await RoomsController.roomsService.delete(id, adminId);
 
-            return res.status(204).send();
-        } catch (error: any) {
-            if (error.message === 'Sala não encontrada') {
-                return res.status(404).json({ message: error.message });
+            res.status(204).send();
+        } catch (error) {
+            if (error instanceof z.ZodError) {
+                return res.status(400).json({
+                    message: 'Validation error',
+                    errors: error
+                });
             }
-            return res.status(400).json({ error });
+
+            if (error instanceof Error) {
+                if (error.message === 'Sala não encontrada') {
+                    return res.status(404).json({ message: error.message });
+                }
+
+                return res.status(400).json({ message: error.message });
+            }
+
+            return res.status(500).json({ message: 'Erro desconhecido' });
         }
     }
 }
