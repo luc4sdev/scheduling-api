@@ -6,6 +6,9 @@ import cors from 'cors';
 import { authMiddleware } from '@/middlewares/auth';
 import { UsersController } from '@/controllers/user';
 import { AuthController } from '@/controllers/auth';
+import { LogsController } from '@/controllers/log';
+import { RoomsController } from '@/controllers/room';
+import { SchedulesController } from '@/controllers/schedule';
 
 const app = express();
 
@@ -22,8 +25,21 @@ app.get('/api/users/:id', UsersController.getOne);
 app.put('/api/users/:id', UsersController.update);
 app.delete('/api/users/:id', UsersController.delete);
 
+app.get('/api/logs', LogsController.getLogs);
+
+app.get('/rooms', authMiddleware, RoomsController.getAll);
+app.post('/rooms', authMiddleware, RoomsController.create);
+app.put('/rooms/:id', authMiddleware, RoomsController.update);
+app.delete('/rooms/:id', authMiddleware, RoomsController.delete);
+
+app.get('/schedules', authMiddleware, SchedulesController.getAll);
+app.get('/schedules/availability', authMiddleware, SchedulesController.getAvailability);
+app.post('/schedules', authMiddleware, SchedulesController.create);
+app.patch('/schedules/:id/status', authMiddleware, SchedulesController.updateStatus);
+
 const startServer = async () => {
     try {
+        //await sequelize.sync({ alter: true });
         //await sequelize.sync({ force: true });
         await sequelize.sync();
         console.log('Banco de dados conectado!');

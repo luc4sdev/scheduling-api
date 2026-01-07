@@ -24,11 +24,13 @@ export interface UserAttributes {
     city: string;
     state: string;
     role: 'USER' | 'ADMIN';
+    isActive: boolean;
+    permissions: string[];
     createdAt?: Date | string;
     updatedAt?: Date | string;
 }
 
-export interface UserCreationAttributes extends Optional<UserAttributes, 'id' | 'createdAt' | 'updatedAt' | 'complement'> { }
+export interface UserCreationAttributes extends Optional<UserAttributes, 'id' | 'createdAt' | 'updatedAt' | 'complement' | 'isActive' | 'permissions'> { }
 
 @Table({
     tableName: 'users',
@@ -114,6 +116,21 @@ export class User extends Model<UserAttributes, UserCreationAttributes> {
         allowNull: false,
     })
     declare role: 'USER' | 'ADMIN';
+
+
+    @Default(true)
+    @Column({
+        type: DataType.BOOLEAN,
+        allowNull: false,
+    })
+    declare isActive: boolean;
+
+    @Default(['APPOINTMENTS', 'LOGS'])
+    @Column({
+        type: DataType.JSON,
+        allowNull: false,
+    })
+    declare permissions: string[];
 
     @CreatedAt
     declare createdAt: Date;

@@ -2,6 +2,7 @@ import { compare } from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { User } from '../models/User';
 import { env } from '@/env';
+import { LogsService } from './log';
 
 interface AuthRequest {
     email: string;
@@ -13,6 +14,12 @@ interface AuthResponse {
 }
 
 export class AuthService {
+
+    private logsService: LogsService;
+
+    constructor() {
+        this.logsService = new LogsService();
+    }
 
     public async authenticate({ email, password }: AuthRequest): Promise<AuthResponse> {
         const user = await User.findOne({
@@ -38,6 +45,12 @@ export class AuthService {
             {
                 expiresIn: '7d'
             }
+        );
+
+        await this.logsService.createLog(
+            user.id,
+            'Login',
+            'Minha Conta'
         );
 
         return { token };

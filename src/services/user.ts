@@ -1,6 +1,7 @@
 import { Op, WhereOptions } from 'sequelize';
 import { User, UserAttributes } from '../models/User';
 import bcrypt from 'bcryptjs';
+import { LogsService } from './log';
 
 export interface UserCreateDTO {
     name: string;
@@ -26,6 +27,12 @@ export interface GetAllParams {
 }
 
 export class UsersService {
+
+    private logsService: LogsService;
+
+    constructor() {
+        this.logsService = new LogsService();
+    }
 
     public async getAll({ page = 1, limit = 10, query, sortBy = 'createdAt', order = 'DESC' }: GetAllParams) {
 
@@ -75,6 +82,13 @@ export class UsersService {
             password: hashedPassword
         });
 
+        await this.logsService.createLog(
+            user.id,
+            'Cadastro de usuário',
+            'Minha Conta',
+            { email: user.email, role: user.role }
+        );
+
         const userJson = user.toJSON();
         const { password, ...userWithoutPassword } = userJson;
 
@@ -92,7 +106,23 @@ export class UsersService {
             data.password = await bcrypt.hash(data.password, 10);
         }
 
+        const emailChanged = data.email && data.email !== user.email;
+
         await user.update(data);
+
+        if (emailChanged) {
+            await this.logsService.createLog(
+                user.id,
+                'Atualização de e-mail',
+                'Minha Conta'
+            );
+        } else {
+            await this.logsService.createLog(
+                user.id,
+                'Atualização de dados cadastrais',
+                'Minha Conta'
+            );
+        }
 
         const userJson = user.toJSON();
         const { password, ...userWithoutPassword } = userJson;
