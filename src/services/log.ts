@@ -23,7 +23,7 @@ export class LogsService {
         });
     }
 
-    public async getAll({ requestingUserId, page = 1, limit = 10, query, date, order }: GetLogsParams) {
+    public async getAll({ requestingUserId, page = 1, limit = 10, query, date, order = 'DESC' }: GetLogsParams) {
         const requester = await User.findByPk(requestingUserId);
         if (!requester) throw new Error('User not found');
 
@@ -52,7 +52,7 @@ export class LogsService {
             where,
             limit,
             offset,
-            order: [['createdAt', order || 'DESC']],
+            order: [['createdAt', order]],
             include: [
                 {
                     model: User,

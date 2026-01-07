@@ -1,7 +1,10 @@
-import { Op, WhereOptions } from 'sequelize';
-import { User, UserAttributes } from '../models/User';
+import { Op } from 'sequelize';
+import { User } from '../models/User';
 import bcrypt from 'bcryptjs';
 import { LogsService } from './log';
+import { Log } from '@/models/Log';
+import { Schedule } from '@/models/Schedule';
+import { endOfDay, parseISO, startOfDay } from 'date-fns';
 
 export interface UserCreateDTO {
     name: string;
@@ -22,8 +25,8 @@ export interface GetAllParams {
     page?: number;
     limit?: number;
     query?: string;
-    sortBy?: string;
-    order?: string;
+    date?: string;
+    order?: 'ASC' | 'DESC';
 }
 
 export class UsersService {
@@ -34,9 +37,11 @@ export class UsersService {
         this.logsService = new LogsService();
     }
 
-    public async getAll({ page = 1, limit = 10, query, sortBy = 'createdAt', order = 'DESC' }: GetAllParams) {
+    public async getAll({ page = 1, limit = 10, query, date, order = 'DESC' }: GetAllParams) {
 
-        const where: any = {};
+        const where: any = {
+            role: { [Op.eq]: 'USER' }
+        };
 
         if (query) {
             where[Op.or] = [
@@ -44,13 +49,20 @@ export class UsersService {
                 { email: { [Op.like]: `%${query}%` } },
             ];
         }
+
+        if (date) {
+            const searchDate = parseISO(date);
+            where.createdAt = {
+                [Op.between]: [startOfDay(searchDate), endOfDay(searchDate)]
+            };
+        }
         const offset = (page - 1) * limit;
 
         const { count, rows } = await User.findAndCountAll({
             where,
             limit,
             offset,
-            order: [[sortBy, order.toUpperCase()]],
+            order: [['createdAt', order]],
             attributes: { exclude: ['password'] }
         });
 
@@ -107,7 +119,7 @@ export class UsersService {
         }
 
         const emailChanged = data.email && data.email !== user.email;
-
+        console.log('Updating user with data:', data);
         await user.update(data);
 
         if (emailChanged) {
@@ -130,6 +142,12 @@ export class UsersService {
     }
 
     public async delete(id: string): Promise<boolean> {
+        await Log.destroy({
+            where: { userId: id }
+        });
+        await Schedule.destroy({
+            where: { userId: id }
+        })
         const deletedCount = await User.destroy({
             where: { id }
         });

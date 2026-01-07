@@ -26,7 +26,7 @@ export class AuthService {
             where: { email }
         });
 
-        if (!user || user.role === 'ADMIN') {
+        if (!user) {
             throw new Error('Invalid credentials');
         }
 

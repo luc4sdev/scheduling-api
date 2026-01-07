@@ -1,5 +1,6 @@
 import { UsersService } from '@/services/user';
 import { Request, Response } from 'express';
+import { permission } from 'node:process';
 import { z } from 'zod';
 
 
@@ -12,15 +13,19 @@ export class UsersController {
             page: z.string().transform(Number).optional(),
             limit: z.string().transform(Number).optional(),
             query: z.string().optional(),
+            date: z.string().optional(),
+            order: z.enum(['ASC', 'DESC']).optional().default('DESC'),
         });
 
         try {
-            const { page = 1, limit = 10, query } = querySchema.parse(req.query);
+            const { page = 1, limit = 10, query, date, order } = querySchema.parse(req.query);
 
             const result = await UsersController.usersService.getAll({
                 page,
                 limit,
-                query
+                query,
+                date,
+                order
             });
 
             res.json(result);
@@ -126,6 +131,8 @@ export class UsersController {
             lastName: z.string().min(2).optional(),
             email: z.email().optional(),
             password: z.string().min(6).optional(),
+            isActive: z.boolean().optional(),
+            permissions: z.array(z.string()).optional(),
             cep: z.string().min(8).optional(),
             street: z.string().optional(),
             number: z.string().optional(),
@@ -143,6 +150,14 @@ export class UsersController {
             const existingUser = await UsersController.usersService.getById(id);
             if (!existingUser) {
                 res.status(404).json({ message: 'User not found' });
+                return;
+            }
+
+            const user = await UsersController.usersService.getById(req.userId);
+            const isAdmin = user?.role === 'ADMIN';
+
+            if (!isAdmin && req.userId !== existingUser.id) {
+                res.status(403).json({ message: 'Forbidden: You do not have permission to update this user' });
                 return;
             }
 
