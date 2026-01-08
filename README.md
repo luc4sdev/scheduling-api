@@ -71,7 +71,7 @@ Acesse a documentação em: [http://localhost:3333/docs](http://localhost:3333/d
 
 ## 🧪 Testes
 
-O projeto está preparado para receber testes unitários e E2E utilizando Vitest. Para rodar os testes (após implementá-los):
+Os testes foram implementados, tanto unitários como E2E utilizando Vitest e Supertest. Para rodar os testes:
 
 ```
 npm run test        # Testes unitários
