@@ -2,11 +2,9 @@
 
 O projeto consiste em uma API back-end para gerenciamento de agendamentos, permitindo o controle eficiente de salas, usuários e horários.
 
-O sistema foi desenvolvido utilizando TypeScript, Node.js e Fastify, com autenticação baseada em JWT e persistência de dados via PostgreSQL utilizando Prisma ORM. O ambiente de banco de dados é facilmente configurado via Docker.
+O sistema foi desenvolvido utilizando TypeScript, Node.js e Express, com autenticação baseada em JWT e persistência de dados via MySQP utilizando Sequelize ORM. O ambiente de banco de dados é facilmente configurado via Docker.
 
-A documentação da API é gerada automaticamente com Swagger, facilitando a integração e o entendimento das rotas disponíveis.
-
-O projeto segue boas práticas de Clean Code, SOLID, DDD e está preparado para receber testes unitários e E2E
+O projeto segue boas práticas de Clean Code e está preparado para receber testes unitários e E2E
 
 ---
 
@@ -14,7 +12,7 @@ O projeto segue boas práticas de Clean Code, SOLID, DDD e está preparado para 
 
 - Node.js (versão mais recente)
 - Docker (versão mais recente)
-- Git (opcional, para clonar o repositório)
+- Git (para clonar o repositório)
 
 ---
 
@@ -37,35 +35,21 @@ npm install
 ```
 NODE_ENV=dev
 PORT="3333"
-DATABASE_URL="postgresql://docker:docker@localhost:5432/scheduling?schema=public"
+DATABASE_URL="mysql://scheduling:scheduling@localhost:3306/scheduling"
 JWT_SECRET="secret"
 ```
 
-2. Gere o client do Prisma:
-
-```
-npx prisma generate
-```
-
-3. Suba o container do banco de dados:
+2. Suba o container do banco de dados:
 
 ```
 docker compose up -d
 ```
 
-4. (Opcional) Popule o banco de dados:
-
-```
-npm run seed
-```
-
-5. Inicie a aplicação:
+3. Inicie a aplicação:
 
 ```
 npm run dev
 ```
-
-Acesse a documentação em: [http://localhost:3333/docs](http://localhost:3333/docs)
 
 ---
 
@@ -84,23 +68,23 @@ npm run test:e2e    # Testes E2E
 
 - TypeScript
 - Node.js
-- Fastify
-- Prisma ORM
-- PostgreSQL
+- Express
+- Sequelize
+- MySQL
 - Docker
-- Swagger
 - Vitest (para testes)
+- Supertest (para testes E2E)
 
 ---
 
 ## ✨ Funcionalidades
 
 - Autenticação via JWT
+- Sistema RBAC
 - Gerenciamento de usuários
 - Gerenciamento de salas
 - Agendamento de horários
-- Documentação automática via Swagger
-
+- Testes automatizados (Github Actions)
 ---
 
 ## 📄 Licença
@@ -109,6 +93,6 @@ Este projeto está sob licença MIT.
 
 ---
 
-Sinta-se à vontade para contribuir, sugerir melhorias ou relatar problemas!
+Sinta-se à vontade para contribuir!
 
 
