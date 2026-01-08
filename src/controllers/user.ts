@@ -1,6 +1,5 @@
-import { UsersService } from '@/services/user';
+import { UsersService } from '../services/user';
 import { Request, Response } from 'express';
-import { permission } from 'node:process';
 import { z } from 'zod';
 
 
@@ -106,7 +105,7 @@ export class UsersController {
 
             const existingUser = await UsersController.usersService.getByEmail(data.email);
             if (existingUser) {
-                res.status(409).json({ message: 'User with same email already exists' });
+                res.status(409).json({ message: 'Já existe um usuário com esse email' });
                 return;
             }
 

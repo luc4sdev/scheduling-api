@@ -1,9 +1,9 @@
 import { Sequelize } from 'sequelize-typescript';
 import { User } from '../models/User';
-import { env } from '@/env';
-import { Log } from '@/models/Log';
-import { Room } from '@/models/Room';
-import { Schedule } from '@/models/Schedule';
+import { env } from '../env';
+import { Log } from '../models/Log';
+import { Room } from '../models/Room';
+import { Schedule } from '../models/Schedule';
 
 
 

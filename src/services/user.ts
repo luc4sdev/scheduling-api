@@ -2,8 +2,8 @@ import { Op, WhereOptions } from 'sequelize';
 import { User } from '../models/User';
 import bcrypt from 'bcryptjs';
 import { LogsService } from './log';
-import { Log } from '@/models/Log';
-import { Schedule } from '@/models/Schedule';
+import { Log } from '../models/Log';
+import { Schedule } from '../models/Schedule';
 import { endOfDay, parseISO, startOfDay } from 'date-fns';
 
 export interface UserCreateDTO {
@@ -158,5 +158,44 @@ export class UsersService {
         });
 
         return deletedCount > 0;
+    }
+
+    public async createDefaultAdminUser() {
+        const existingUser = await this.getByEmail('admin@email.com');
+        if (existingUser) {
+            return existingUser;
+        }
+        const adminUser: UserCreateDTO = {
+            name: 'Admin',
+            lastName: 'User',
+            email: 'admin@email.com',
+            role: 'ADMIN',
+            password: 'admin123',
+            cep: '00000-000',
+            street: 'Admin Street',
+            number: '1',
+            complement: '',
+            neighborhood: 'Admin Neighborhood',
+            city: 'Admin City',
+            state: 'AS'
+        }
+        const hashedPassword = await bcrypt.hash(adminUser.password, 10);
+
+        const user = await User.create({
+            ...adminUser,
+            password: hashedPassword
+        });
+
+        await this.logsService.createLog(
+            user.id,
+            'Cadastro de usuário',
+            'Minha Conta',
+            { email: user.email, role: user.role }
+        );
+
+        const userJson = user.toJSON();
+        const { password, ...userWithoutPassword } = userJson;
+
+        return userWithoutPassword;
     }
 }

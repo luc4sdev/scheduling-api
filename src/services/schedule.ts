@@ -3,7 +3,7 @@ import { Schedule, ScheduleStatus } from '../models/Schedule';
 import { Room } from '../models/Room';
 import { User } from '../models/User';
 import { LogsService } from './log';
-import { statusMap } from '@/utils/translate-status';
+import { statusMap } from '../utils/translate-status';
 
 interface CreateScheduleDTO {
     userId: string;

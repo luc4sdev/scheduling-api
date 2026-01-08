@@ -1,8 +1,8 @@
-import { UsersService } from '@/services/user';
+import { UsersService } from '../services/user';
 import { Request, Response } from 'express';
 import { z } from 'zod';
 import { ScheduleStatus } from '../models/Schedule';
-import { SchedulesService } from '@/services/schedule';
+import { SchedulesService } from '../services/schedule';
 
 export class SchedulesController {
     private static service = new SchedulesService();

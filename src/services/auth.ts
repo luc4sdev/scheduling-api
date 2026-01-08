@@ -1,7 +1,7 @@
 import { compare } from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { User } from '../models/User';
-import { env } from '@/env';
+import { env } from '../env';
 import { LogsService } from './log';
 
 interface AuthRequest {

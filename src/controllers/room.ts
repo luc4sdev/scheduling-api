@@ -1,4 +1,4 @@
-import { RoomsService } from '@/services/room';
+import { RoomsService } from '../services/room';
 import { Request, Response } from 'express';
 import { z } from 'zod';
 

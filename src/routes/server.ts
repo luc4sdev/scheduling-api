@@ -1,4 +1,5 @@
 import 'reflect-metadata';
+import { app } from '@/app';
 import express from 'express';
 import { sequelize } from '@/config/database';
 import { env } from '@/env';
@@ -9,8 +10,7 @@ import { AuthController } from '@/controllers/auth';
 import { LogsController } from '@/controllers/log';
 import { RoomsController } from '@/controllers/room';
 import { SchedulesController } from '@/controllers/schedule';
-
-const app = express();
+import { UsersService } from '@/services/user';
 
 app.use(cors({
     origin: ["http://localhost:3000"],
@@ -49,6 +49,9 @@ const startServer = async () => {
         //await sequelize.sync({ force: true });
         await sequelize.sync();
         console.log('Banco de dados conectado!');
+
+        const usersService = new UsersService();
+        await usersService.createDefaultAdminUser();
 
         app.listen(env.PORT, () => {
             console.log(`Servidor rodando na porta ${env.PORT}`);

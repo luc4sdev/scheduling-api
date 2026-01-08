@@ -1,4 +1,4 @@
-import { LogsService } from '@/services/log';
+import { LogsService } from '../services/log';
 import { Request, Response } from 'express';
 import { z } from 'zod';
 

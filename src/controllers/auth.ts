@@ -1,4 +1,4 @@
-import { AuthService } from '@/services/auth';
+import { AuthService } from '../services/auth';
 import { Request, Response } from 'express';
 import { z } from 'zod';
 
