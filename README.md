@@ -4,7 +4,7 @@ O projeto consiste em uma API back-end para gerenciamento de agendamentos, permi
 
 Foi realizada a integração com o envio de emails para notificar clientes e admnistradores.
 
-O sistema foi desenvolvido utilizando TypeScript, Node.js e Express, com autenticação baseada em JWT e persistência de dados via MySQP utilizando Sequelize ORM. O ambiente de banco de dados é facilmente configurado via Docker.
+O sistema foi desenvolvido utilizando TypeScript, Node.js e Express, com autenticação baseada em JWT e persistência de dados via MySQL utilizando Sequelize ORM. O ambiente de banco de dados é facilmente configurado via Docker.
 
 O projeto segue boas práticas de Clean Code e está preparado para receber testes unitários e E2E.
 
