@@ -11,6 +11,8 @@ import { LogsController } from '@/controllers/log';
 import { RoomsController } from '@/controllers/room';
 import { SchedulesController } from '@/controllers/schedule';
 import { UsersService } from '@/services/user';
+import swaggerUi from 'swagger-ui-express';
+import { swaggerSpec } from '@/config/swagger';
 
 app.use(cors({
     origin: ["http://localhost:3000"],
@@ -20,11 +22,15 @@ app.use(cors({
     optionsSuccessStatus: 204
 }));
 app.use(express.json());
+app.use('/api/docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+
+
 
 app.post('/api/sessions/password', AuthController.authenticate);
 app.post('/api/users', UsersController.create);
 
 app.use(authMiddleware);
+
 app.get('/api/me', UsersController.me);
 app.get('/api/users', UsersController.getAll);
 app.get('/api/users/:id', UsersController.getOne);

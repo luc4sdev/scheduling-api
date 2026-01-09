@@ -6,7 +6,17 @@ O sistema foi desenvolvido utilizando TypeScript, Node.js e Express, com autenti
 
 O projeto segue boas práticas de Clean Code e está preparado para receber testes unitários e E2E
 
+Para a documentação da API foi utilizado o Swagger.
+
 ---
+
+<br/>
+
+## 📗 Link da documentação da API
+
+<h2>Link: <a href="https://support-api-3g2f.onrender.com/api/docs" target="_blank" rel="external">Documentação</a></h2>
+
+<br/>
 
 ## 💻 Pré-requisitos
 
@@ -74,6 +84,7 @@ npm run test:e2e    # Testes E2E
 - Docker
 - Vitest (para testes)
 - Supertest (para testes E2E)
+- Swagger (para a documentação)
 
 ---
 
@@ -85,6 +96,7 @@ npm run test:e2e    # Testes E2E
 - Gerenciamento de salas
 - Agendamento de horários
 - Testes automatizados (Github Actions)
+- Documentação com Swagger
 ---
 
 ## 📄 Licença
