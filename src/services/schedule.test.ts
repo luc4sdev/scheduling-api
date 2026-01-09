@@ -3,8 +3,28 @@ import { SchedulesService } from './schedule';
 import { Schedule } from '../models/Schedule';
 import { Room } from '../models/Room';
 
+vi.mock('../env', () => ({
+    env: {
+        JWT_SECRET: 'test-secret',
+        DATABASE_URL: 'sqlite::memory:',
+        PORT: 3000,
+        MAIL_USER: 'test@gmail.com',
+        MAIL_PASS: 'test-pass'
+    }
+}));
 
-vi.mock('./log/');
+vi.mock('./log', () => ({
+    LogsService: class LogsServiceMock {
+        createLog = vi.fn().mockResolvedValue(undefined);
+    }
+}));
+
+vi.mock('./mail', () => ({
+    MailService: class MailServiceMock {
+        sendSchedulingConfirmation = vi.fn().mockResolvedValue(undefined);
+        notifyAdminNewSchedule = vi.fn().mockResolvedValue(undefined);
+    }
+}));
 
 vi.mock('../models/Schedule', () => ({
     Schedule: {
