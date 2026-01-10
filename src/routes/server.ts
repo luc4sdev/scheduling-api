@@ -1,18 +1,18 @@
 import 'reflect-metadata';
 import { app } from '../app';
 import express from 'express';
-import { sequelize } from '@/config/database';
-import { env } from '@/env';
+import { env } from '../env';
 import cors from 'cors';
-import { authMiddleware } from '@/middlewares/auth';
-import { UsersController } from '@/controllers/user';
-import { AuthController } from '@/controllers/auth';
-import { LogsController } from '@/controllers/log';
-import { RoomsController } from '@/controllers/room';
-import { SchedulesController } from '@/controllers/schedule';
-import { UsersService } from '@/services/user';
+import { authMiddleware } from '../middlewares/auth';
+import { UsersController } from '../controllers/user';
+import { AuthController } from '../controllers/auth';
+import { LogsController } from '../controllers/log';
+import { RoomsController } from '../controllers/room';
+import { SchedulesController } from '../controllers/schedule';
+import { UsersService } from '../services/user';
 import swaggerUi from 'swagger-ui-express';
-import { swaggerSpec } from '@/config/swagger';
+import { swaggerSpec } from '../config/swagger';
+import { sequelize } from '../config/database';
 
 app.use(cors({
     origin: ["http://localhost:3000"],

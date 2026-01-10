@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "tsx watch --env-file=.env src/routes/server.ts",
     "build": "tsc",
-    "start": "node dist/src/routes/server.js",
+    "start": "node dist/routes/server.js",
     "test": "vitest",
     "test:watch": "vitest",
     "test:unit": "vitest run --project unit",
