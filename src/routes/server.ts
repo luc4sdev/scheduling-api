@@ -15,7 +15,7 @@ import { swaggerSpec } from '../config/swagger';
 import { sequelize } from '../config/database';
 
 app.use(cors({
-    origin: ["http://localhost:3000"],
+    origin: ["http://localhost:3000", "https://scheduling-app-sigma.vercel.app"],
     methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
     preflightContinue: false,
     credentials: true,

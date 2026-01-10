@@ -16,7 +16,7 @@ Para a documentação da API foi utilizado o Swagger.
 
 ## 📗 Link da documentação da API
 
-<h2>Link: <a href="https://support-api-3g2f.onrender.com/api/docs" target="_blank" rel="external">Documentação</a></h2>
+<h2>Link: <a href="https://scheduling-api-ws9u.onrender.com/api/docs" target="_blank" rel="external">Documentação</a></h2>
 
 <br/>
 
