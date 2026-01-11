@@ -213,6 +213,6 @@ export class SchedulesService {
                 { scheduleId: schedule.id }
             );
         }
-        return { userEmail: user?.email, userName: user?.name, dateString: schedule.date, time: schedule.startTime };
+        return { userEmail: user?.email, userName: user?.name, dateString: schedule.date, time: schedule.startTime, status };
     }
 }
