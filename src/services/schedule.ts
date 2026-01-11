@@ -109,21 +109,21 @@ export class SchedulesService {
             status: ScheduleStatus.PENDING
         });
 
-        try {
-            const user = await User.findByPk(userId);
-            const admins = await User.findAll({ where: { role: 'ADMIN' } });
-            if (user && admins.length > 0) {
-                admins.forEach(async (admin) => {
-                    await this.mailService.notifyAdminNewSchedule(
-                        admin.email,
-                        `${user.name} ${user.lastName}`,
-                        user.email,
-                        date,
-                        startTime
-                    );
-                });
-            }
-        } catch { }
+        // try {
+        //     const user = await User.findByPk(userId);
+        //     const admins = await User.findAll({ where: { role: 'ADMIN' } });
+        //     if (user && admins.length > 0) {
+        //         admins.forEach(async (admin) => {
+        //             await this.mailService.notifyAdminNewSchedule(
+        //                 admin.email,
+        //                 `${user.name} ${user.lastName}`,
+        //                 user.email,
+        //                 date,
+        //                 startTime
+        //             );
+        //         });
+        //     }
+        // } catch { }
 
         await this.logsService.createLog(
             userId,
@@ -190,20 +190,20 @@ export class SchedulesService {
         const schedule = await Schedule.findByPk(id);
         if (!schedule) throw new Error('Agendamento não encontrado');
         await schedule.update({ status });
-
-        if (status === ScheduleStatus.CONFIRMED) {
-            try {
-                const user = await User.findByPk(schedule.userId);
-                if (user) {
-                    await this.mailService.sendSchedulingConfirmation(
-                        user.email,
-                        `${user.name} ${user.lastName}`,
-                        schedule.date,
-                        schedule.startTime
-                    );
-                }
-            } catch { }
-        }
+        const user = await User.findByPk(schedule.userId);
+        // if (status === ScheduleStatus.CONFIRMED) {
+        //     try {
+        //         const user = await User.findByPk(schedule.userId);
+        //         if (user) {
+        //             await this.mailService.sendSchedulingConfirmation(
+        //                 user.email,
+        //                 `${user.name} ${user.lastName}`,
+        //                 schedule.date,
+        //                 schedule.startTime
+        //             );
+        //         }
+        //     } catch { }
+        // }
 
         if (status === ScheduleStatus.CANCELLED || status === ScheduleStatus.COMPLETED) {
             await this.logsService.createLog(
@@ -213,7 +213,6 @@ export class SchedulesService {
                 { scheduleId: schedule.id }
             );
         }
-
-        return schedule;
+        return { userEmail: user?.email, userName: user?.name, dateString: schedule.date, time: schedule.startTime };
     }
 }
