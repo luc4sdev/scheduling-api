@@ -14,6 +14,9 @@ export class MailService {
                 user: env.MAIL_USER,
                 pass: env.MAIL_PASS,
             },
+            tls: {
+                rejectUnauthorized: false
+            }
         });
     }
 
