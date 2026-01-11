@@ -7,7 +7,9 @@ export class MailService {
 
     constructor() {
         this.transporter = nodemailer.createTransport({
-            service: 'gmail',
+            host: 'smtp.gmail.com',
+            port: 465,
+            secure: true,
             auth: {
                 user: env.MAIL_USER,
                 pass: env.MAIL_PASS,
@@ -36,6 +38,7 @@ export class MailService {
             });
             return info;
         } catch (error) {
+            console.error("Erro ao enviar email:", error);
             return null;
         }
     }
@@ -64,6 +67,7 @@ export class MailService {
             });
             return info;
         } catch (error) {
+            console.error("Erro ao enviar email:", error);
             return null;
         }
     }

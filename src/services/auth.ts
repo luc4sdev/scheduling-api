@@ -55,4 +55,12 @@ export class AuthService {
 
         return { token };
     }
+
+    public async logout(userId: string) {
+        await this.logsService.createLog(
+            userId,
+            'Logout',
+            'Minha Conta',
+        );
+    }
 }

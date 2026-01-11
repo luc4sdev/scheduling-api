@@ -38,4 +38,17 @@ export class AuthController {
             res.status(500).json({ message: 'Internal server error', error });
         }
     }
+
+    public static async logout(req: Request, res: Response) {
+        try {
+            const userId = req.userId;
+            if (userId) {
+                await AuthController.authService.logout(userId);
+            }
+
+            return res.status(200).send();
+        } catch (error) {
+            return res.status(200).send();
+        }
+    }
 }

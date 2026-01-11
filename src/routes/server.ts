@@ -30,6 +30,7 @@ app.post('/api/sessions/password', AuthController.authenticate);
 app.post('/api/users', UsersController.create);
 
 app.use(authMiddleware);
+app.post('/api/sessions/logout', AuthController.logout);
 
 app.get('/api/me', UsersController.me);
 app.get('/api/users', UsersController.getAll);
