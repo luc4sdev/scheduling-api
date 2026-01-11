@@ -47,3 +47,19 @@
  *       500:
  *         description: Erro interno do servidor
  */
+
+
+/**
+ * @swagger
+ * /api/auth/logout:
+ *   post:
+ *     summary: Registra o logout do usuário
+ *     description: Esta rota deve ser chamada pelo front antes de limpar o token.
+ *     tags: [Auth]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Logout registrado com sucesso
+ */
+
