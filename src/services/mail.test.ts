@@ -47,7 +47,12 @@ describe('MailService', () => {
     describe('Constructor', () => {
         it('should create transporter with correct configuration', () => {
             expect(nodemailer.createTransport).toHaveBeenCalledWith({
-                service: 'gmail',
+                host: 'smtp.gmail.com',
+                port: 465,
+                secure: true,
+                tls: {
+                    rejectUnauthorized: false,
+                },
                 auth: {
                     user: 'test@gmail.com',
                     pass: 'test-password'

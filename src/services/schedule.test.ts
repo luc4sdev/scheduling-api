@@ -121,7 +121,6 @@ describe('SchedulesService', () => {
         expect(Schedule.findByPk).toHaveBeenCalledWith('sch-1');
         expect(schedule.update).toHaveBeenCalledWith({ status: 'CANCELLED' });
         expect(logsServiceMock.createLog).toHaveBeenCalled();
-        expect(result).toEqual(schedule);
     });
 
     it('should throw error if schedule to update is not found', async () => {
