@@ -104,6 +104,7 @@ npm run test:e2e    # Testes E2E
 - Notificação por email quando um administrador aprova um agendamento (enviado para o cliente)
 - Testes automatizados (Github Actions)
 - Documentação com Swagger
+- Implementação de Rate-Limit para escalabilidade e segurança (Ex: 10 tentativas de login bloqueio por 1 min).
 ---
 
 ## 📄 Licença

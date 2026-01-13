@@ -13,7 +13,23 @@ import { UsersService } from '../services/user';
 import swaggerUi from 'swagger-ui-express';
 import { swaggerSpec } from '../config/swagger';
 import { sequelize } from '../config/database';
+import rateLimit from 'express-rate-limit';
 
+const apiLimiter = rateLimit({
+    windowMs: 10 * 60 * 1000,
+    max: 500,
+    standardHeaders: true,
+    legacyHeaders: false,
+    message: { message: "Muitas requisições criadas a partir deste IP, tente novamente após 10 minutos." },
+});
+
+const loginLimiter = rateLimit({
+    windowMs: 1 * 60 * 1000,
+    max: 10,
+    message: { message: "Muitas tentativas de login. Sua conta foi bloqueada temporariamente por 1 minuto por segurança." },
+});
+
+app.set('trust proxy', 1);
 app.use(cors({
     origin: ["http://localhost:3000", "https://scheduling-app-sigma.vercel.app"],
     methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
@@ -22,11 +38,12 @@ app.use(cors({
     optionsSuccessStatus: 204
 }));
 app.use(express.json());
+
 app.use('/api/docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
+app.use('/api', apiLimiter);
 
-
-app.post('/api/sessions/password', AuthController.authenticate);
+app.post('/api/sessions/password', loginLimiter, AuthController.authenticate);
 app.post('/api/users', UsersController.create);
 
 app.use(authMiddleware);
@@ -52,19 +69,18 @@ app.patch('/api/schedules/:id/status', SchedulesController.updateStatus);
 
 const startServer = async () => {
     try {
-        //await sequelize.sync({ alter: true });
-        //await sequelize.sync({ force: true });
         await sequelize.sync();
-        console.log('Banco de dados conectado!');
+        console.log('✅ Banco de dados conectado!');
 
         const usersService = new UsersService();
         await usersService.createDefaultAdminUser();
 
         app.listen(env.PORT, () => {
-            console.log(`Servidor rodando na porta ${env.PORT}`);
+            console.log(`🚀 Servidor rodando na porta ${env.PORT}`);
+            console.log(`🛡️ Rate Limiting ativado`);
         });
     } catch (error) {
-        console.error('Erro ao conectar no banco:', error);
+        console.error('❌ Erro ao conectar no banco:', error);
     }
 };
 

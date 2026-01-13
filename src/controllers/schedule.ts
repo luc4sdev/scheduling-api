@@ -118,7 +118,9 @@ export class SchedulesController {
             const { status } = schemaBody.parse(req.body);
 
             const updated = await SchedulesController.service.updateStatus(id, status);
-            res.json(updated);
+            const user = await SchedulesController.usersService.getById(req.userId);
+            const isAdmin = user?.role === 'ADMIN';
+            res.json({ ...updated, isAdmin });
         } catch (error) {
             if (error instanceof z.ZodError) {
                 res.status(400).json({ message: 'Validation error', errors: error });
