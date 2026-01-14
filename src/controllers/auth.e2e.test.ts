@@ -55,8 +55,8 @@ describe('AuthController E2E', () => {
                 .send(loginData);
 
             expect(response.status).toBe(201);
-            expect(response.body).toHaveProperty('token');
-            expect(response.body.token).toBe(mockToken);
+            expect(response.body).toHaveProperty('message', 'Authenticated');
+            expect(response.headers['set-cookie']).toBeDefined();
             expect(mockAuthService.authenticate).toHaveBeenCalledWith({
                 email: loginData.email,
                 password: loginData.password

@@ -14,6 +14,7 @@ import swaggerUi from 'swagger-ui-express';
 import { swaggerSpec } from '../config/swagger';
 import { sequelize } from '../config/database';
 import rateLimit from 'express-rate-limit';
+import cookieParser from 'cookie-parser';
 
 const apiLimiter = rateLimit({
     windowMs: 10 * 60 * 1000,
@@ -37,6 +38,8 @@ app.use(cors({
     credentials: true,
     optionsSuccessStatus: 204
 }));
+
+app.use(cookieParser());
 app.use(express.json());
 
 app.use('/api/docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));

@@ -12,24 +12,29 @@ declare global {
 
 export function authMiddleware(req: Request, res: Response, next: NextFunction) {
     try {
-        const authHeader = req.headers.authorization
+        let token: string | undefined;
 
-        if (!authHeader) {
-            return res.status(401).json({ message: 'Token not provided' })
+        if (req.cookies && req.cookies.token) {
+            token = req.cookies.token;
         }
-
-        const [, token] = authHeader.split(' ')
 
         if (!token) {
-            return res.status(401).json({ message: 'Token format invalid' })
+            const authHeader = req.headers.authorization;
+            if (authHeader) {
+                const parts = authHeader.split(' ');
+                if (parts.length === 2) token = parts[1];
+            }
+        }
+        if (!token) {
+            return res.status(401).json({ message: 'Token not provided' });
         }
 
-        const decoded = jwt.verify(token, env.JWT_SECRET) as { sub: string }
+        const decoded = jwt.verify(token, env.JWT_SECRET) as { sub: string };
 
-        req.userId = decoded.sub
+        req.userId = decoded.sub;
 
-        return next()
+        return next();
     } catch (error) {
-        return res.status(401).json({ message: 'Invalid token' })
+        return res.status(401).json({ message: 'Invalid token' });
     }
 }
