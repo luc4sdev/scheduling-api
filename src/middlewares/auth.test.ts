@@ -22,8 +22,7 @@ describe('authMiddleware', () => {
         next = vi.fn();
 
         req = {
-            headers: {},
-            cookies: {}
+            headers: {}
         };
 
         res = {
@@ -137,70 +136,6 @@ describe('authMiddleware', () => {
         });
     });
 
-    describe('Cookie Token', () => {
-        it('should extract token from cookies when present', () => {
-            const userId = '550e8400-e29b-41d4-a716-446655440000';
-            const token = jwt.sign({ sub: userId }, 'test-secret');
-
-            req.cookies = {
-                token
-            };
-            req.headers = {};
-
-            authMiddleware(req as Request, res as Response, next);
-
-            expect(req.userId).toBe(userId);
-            expect(next).toHaveBeenCalled();
-            expect(statusMock).not.toHaveBeenCalled();
-        });
-
-        it('should prioritize cookie token over authorization header', () => {
-            const userId = '550e8400-e29b-41d4-a716-446655440000';
-            const cookieToken = jwt.sign({ sub: userId }, 'test-secret');
-            const headerToken = jwt.sign({ sub: 'different-user' }, 'test-secret');
-
-            req.cookies = {
-                token: cookieToken
-            };
-            req.headers = {
-                authorization: `Bearer ${headerToken}`
-            };
-
-            authMiddleware(req as Request, res as Response, next);
-
-            expect(req.userId).toBe(userId);
-            expect(next).toHaveBeenCalled();
-        });
-
-        it('should fall back to authorization header when cookie is missing', () => {
-            const userId = '550e8400-e29b-41d4-a716-446655440000';
-            const token = jwt.sign({ sub: userId }, 'test-secret');
-
-            req.cookies = {};
-            req.headers = {
-                authorization: `Bearer ${token}`
-            };
-
-            authMiddleware(req as Request, res as Response, next);
-
-            expect(req.userId).toBe(userId);
-            expect(next).toHaveBeenCalled();
-        });
-
-        it('should return 401 when cookie token is invalid', () => {
-            req.cookies = {
-                token: 'invalid-token'
-            };
-            req.headers = {};
-
-            authMiddleware(req as Request, res as Response, next);
-
-            expect(statusMock).toHaveBeenCalledWith(401);
-            expect(jsonMock).toHaveBeenCalledWith({ message: 'Invalid token' });
-            expect(next).not.toHaveBeenCalled();
-        });
-    });
-
     describe('Token Format', () => {
         it('should return 401 when token format is invalid (missing Bearer prefix)', () => {
             const userId = '550e8400-e29b-41d4-a716-446655440000';
@@ -213,7 +148,7 @@ describe('authMiddleware', () => {
             authMiddleware(req as Request, res as Response, next);
 
             expect(statusMock).toHaveBeenCalledWith(401);
-            expect(jsonMock).toHaveBeenCalledWith({ message: 'Token not provided' });
+            expect(jsonMock).toHaveBeenCalledWith({ message: 'Token format invalid' });
             expect(next).not.toHaveBeenCalled();
         });
 
@@ -225,7 +160,7 @@ describe('authMiddleware', () => {
             authMiddleware(req as Request, res as Response, next);
 
             expect(statusMock).toHaveBeenCalledWith(401);
-            expect(jsonMock).toHaveBeenCalledWith({ message: 'Token not provided' });
+            expect(jsonMock).toHaveBeenCalledWith({ message: 'Token format invalid' });
             expect(next).not.toHaveBeenCalled();
         });
 

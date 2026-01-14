@@ -1,7 +1,7 @@
-import { env } from '../env';
 import { AuthService } from '../services/auth';
-import { Request, Response, CookieOptions } from 'express';
+import { Request, Response } from 'express';
 import { z } from 'zod';
+
 
 export class AuthController {
     private static authService = new AuthService();
@@ -20,21 +20,7 @@ export class AuthController {
                 password
             });
 
-            const expiresIn = 7 * 24 * 60 * 60 * 1000;
-
-            const cookieOptions: CookieOptions = {
-                httpOnly: true,
-                secure: env.NODE_ENV === 'production',
-                sameSite: 'none',
-                maxAge: expiresIn,
-                path: '/'
-            };
-
-            res.cookie('token', token, cookieOptions);
-
-            res.status(201).json({
-                message: 'Authenticated'
-            });
+            res.status(201).json({ token });
             return;
 
         } catch (error) {
@@ -60,16 +46,8 @@ export class AuthController {
                 await AuthController.authService.logout(userId);
             }
 
-            res.clearCookie('token', {
-                httpOnly: true,
-                secure: process.env.NODE_ENV === 'production',
-                sameSite: 'strict',
-                path: '/'
-            });
-
-            return res.status(200).send({ message: "Logout successfully" });
+            return res.status(200).send();
         } catch (error) {
-            res.clearCookie('token');
             return res.status(200).send();
         }
     }
