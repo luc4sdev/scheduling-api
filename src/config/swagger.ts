@@ -14,15 +14,15 @@ const options = {
         },
         servers: [
             {
-                url: '/api',
-                description: 'Servidor Atual (Relativo)',
+                url: '/',
+                description: 'Servidor Atual',
             },
             {
-                url: `http://localhost:${env.PORT}/api`,
+                url: `http://localhost:${env.PORT}`,
                 description: 'Servidor Local',
             },
             {
-                url: `https://scheduling-api-ws9u.onrender.com/api`,
+                url: `https://scheduling-api-ws9u.onrender.com`,
                 description: 'Servidor Produção',
             }
         ],
