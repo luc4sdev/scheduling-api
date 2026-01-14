@@ -31,7 +31,7 @@ const loginLimiter = rateLimit({
 
 app.set('trust proxy', 1);
 app.use(cors({
-    origin: ["http://localhost:3000", "https://scheduling-app-sigma.vercel.app"],
+    origin: ["http://localhost:3000", "https://scheduling-app-sigma.vercel.app", "https://scheduling-api-ws9u.onrender.com"],
     methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
     preflightContinue: false,
     credentials: true,

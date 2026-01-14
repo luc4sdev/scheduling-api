@@ -1,3 +1,4 @@
+import { env } from '../env';
 import swaggerJsdoc from 'swagger-jsdoc';
 
 const options = {
@@ -13,9 +14,17 @@ const options = {
         },
         servers: [
             {
-                url: 'http://localhost:3333',
+                url: '/api',
+                description: 'Servidor Atual (Relativo)',
+            },
+            {
+                url: `http://localhost:${env.PORT}/api`,
                 description: 'Servidor Local',
             },
+            {
+                url: `https://scheduling-api-ws9u.onrender.com/api`,
+                description: 'Servidor Produção',
+            }
         ],
         components: {
             securitySchemes: {
