@@ -16,11 +16,11 @@ import { sequelize } from '../config/database';
 import rateLimit from 'express-rate-limit';
 
 const apiLimiter = rateLimit({
-    windowMs: 10 * 60 * 1000,
-    max: 500,
+    windowMs: 5 * 60 * 1000,
+    max: 1000,
     standardHeaders: true,
     legacyHeaders: false,
-    message: { message: "Muitas requisições criadas a partir deste IP, tente novamente após 10 minutos." },
+    message: { message: "Muitas requisições criadas a partir deste IP, tente novamente após 5 minutos." },
 });
 
 const loginLimiter = rateLimit({
