@@ -33,9 +33,10 @@ export class LogsService {
 
             ...(query ? {
                 [Op.or]: [
-                    { name: { [Op.like]: `%${query}%` } },
                     { action: { [Op.like]: `%${query}%` } },
-                    { module: { [Op.like]: `%${query}%` } }
+                    { module: { [Op.like]: `%${query}%` } },
+                    { '$User.name$': { [Op.like]: `%${query}%` } },
+                    { '$User.lastName$': { [Op.like]: `%${query}%` } }
                 ]
             } : {}),
 
@@ -46,17 +47,11 @@ export class LogsService {
             } : {})
         };
 
-        if (date) {
-            const searchDate = parseISO(date);
-            where.createdAt = {
-                [Op.between]: [startOfDay(searchDate), endOfDay(searchDate)]
-            };
-        }
-
         const { count, rows } = await Log.findAndCountAll({
             where,
             limit,
             offset,
+            subQuery: false,
             order: [['createdAt', order]],
             include: [
                 {
