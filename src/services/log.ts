@@ -33,6 +33,7 @@ export class LogsService {
 
             ...(query ? {
                 [Op.or]: [
+                    { name: { [Op.like]: `%${query}%` } },
                     { action: { [Op.like]: `%${query}%` } },
                     { module: { [Op.like]: `%${query}%` } }
                 ]
