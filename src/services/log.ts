@@ -34,9 +34,7 @@ export class LogsService {
             ...(query ? {
                 [Op.or]: [
                     { action: { [Op.like]: `%${query}%` } },
-                    { module: { [Op.like]: `%${query}%` } },
-                    { '$User.name$': { [Op.like]: `%${query}%` } },
-                    { '$User.lastName$': { [Op.like]: `%${query}%` } }
+                    { module: { [Op.like]: `%${query}%` } }
                 ]
             } : {}),
 
@@ -51,7 +49,6 @@ export class LogsService {
             where,
             limit,
             offset,
-            subQuery: false,
             order: [['createdAt', order]],
             include: [
                 {
