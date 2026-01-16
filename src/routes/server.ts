@@ -70,17 +70,17 @@ app.patch('/api/schedules/:id/status', SchedulesController.updateStatus);
 const startServer = async () => {
     try {
         await sequelize.sync();
-        console.log('✅ Banco de dados conectado!');
+        console.log('Banco de dados conectado!');
 
         const usersService = new UsersService();
         await usersService.createDefaultAdminUser();
 
         app.listen(env.PORT, () => {
-            console.log(`🚀 Servidor rodando na porta ${env.PORT}`);
-            console.log(`🛡️ Rate Limiting ativado`);
+            console.log(`Servidor rodando na porta ${env.PORT}`);
+            console.log(`Rate Limiting ativado`);
         });
     } catch (error) {
-        console.error('❌ Erro ao conectar no banco:', error);
+        console.error('Erro ao conectar no banco:', error);
     }
 };
 
